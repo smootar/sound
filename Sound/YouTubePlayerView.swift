@@ -40,7 +40,7 @@ struct YouTubePlayerView: UIViewRepresentable {
         <body>
             <div class="video-wrap">
                 <iframe
-                    src="https://www.youtube.com/embed/\(videoID)?playsinline=1&autoplay=1&rel=0"
+                    src="https://www.youtube-nocookie.com/embed/\(videoID)?playsinline=1&autoplay=1&rel=0&modestbranding=1"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
@@ -50,7 +50,7 @@ struct YouTubePlayerView: UIViewRepresentable {
         </html>
         """
 
-        webView.loadHTMLString(embedHTML, baseURL: URL(string: "https://www.youtube.com"))
+        webView.loadHTMLString(embedHTML, baseURL: URL(string: "https://www.youtube-nocookie.com"))
     }
 }
 

@@ -241,14 +241,6 @@ struct YouTubePickerOverlay: View {
     @State private var urlInput: String = ""
     @State private var errorMessage: String?
 
-    // Curated demo videos that work well for visualizations
-    private let demoVideos: [DemoVideo] = [
-        DemoVideo(title: "Beethoven Symphony No. 5", subtitle: "Classical · Public Domain", videoID: "fOk8Tm815lE"),
-        DemoVideo(title: "Pachelbel Canon in D", subtitle: "Classical · Public Domain", videoID: "JvNQLJ1_HQ0"),
-        DemoVideo(title: "Bach Toccata and Fugue", subtitle: "Classical · Public Domain", videoID: "ho9rZjlsyYY"),
-        DemoVideo(title: "1812 Overture (Tchaikovsky)", subtitle: "Classical · Public Domain", videoID: "rj4xDQg9p3M")
-    ]
-
     var body: some View {
         ZStack {
             Color.black.opacity(0.6)
@@ -306,47 +298,14 @@ struct YouTubePickerOverlay: View {
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
+
+                        Text("Tip: some videos block embedding. If you see \"Video unavailable\", try a different video.")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.top, 4)
                     }
                     .padding()
                     .background(Color.gray.opacity(0.2))
-
-                    // Demo videos list
-                    Text("Or pick a demo")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.top, 12)
-                        .padding(.bottom, 4)
-                        .background(Color.gray.opacity(0.2))
-
-                    ForEach(demoVideos) { video in
-                        Button(action: {
-                            onSelect(video.videoID)
-                            close()
-                        }) {
-                            HStack {
-                                Image(systemName: "music.note")
-                                    .foregroundColor(.blue)
-                                    .frame(width: 24)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(video.title)
-                                        .foregroundColor(.white)
-                                        .font(.body)
-                                    Text(video.subtitle)
-                                        .foregroundColor(.white.opacity(0.5))
-                                        .font(.caption)
-                                }
-                                Spacer()
-                                Image(systemName: "play.circle")
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                        }
-
-                        Divider().background(Color.gray.opacity(0.3))
-                    }
                 }
                 .background(Color(white: 0.15))
                 .cornerRadius(16)
@@ -370,11 +329,4 @@ struct YouTubePickerOverlay: View {
             isPresented = false
         }
     }
-}
-
-struct DemoVideo: Identifiable {
-    var id: String { videoID }
-    let title: String
-    let subtitle: String
-    let videoID: String
 }
