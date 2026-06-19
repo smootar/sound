@@ -17,6 +17,7 @@
 		A1000031000000000000001 /* FireVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032000000000000001 /* FireVisualizerView.swift */; };
 		A1000033000000000000001 /* LineVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000034000000000000001 /* LineVisualizerView.swift */; };
 		A1000035000000000000001 /* BarsVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000036000000000000001 /* BarsVisualizerView.swift */; };
+		A1000037000000000000001 /* YouTubePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000038000000000000001 /* YouTubePlayerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		A1000032000000000000001 /* FireVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireVisualizerView.swift; sourceTree = "<group>"; };
 		A1000034000000000000001 /* LineVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineVisualizerView.swift; sourceTree = "<group>"; };
 		A1000036000000000000001 /* BarsVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarsVisualizerView.swift; sourceTree = "<group>"; };
+		A1000038000000000000001 /* YouTubePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				A1000032000000000000001 /* FireVisualizerView.swift */,
 				A1000034000000000000001 /* LineVisualizerView.swift */,
 				A1000036000000000000001 /* BarsVisualizerView.swift */,
+				A1000038000000000000001 /* YouTubePlayerView.swift */,
 				A1000026000000000000001 /* Assets.xcassets */,
 				A1000010000000000000001 /* Info.plist */,
 			);
@@ -157,6 +160,7 @@
 				A1000031000000000000001 /* FireVisualizerView.swift in Sources */,
 				A1000033000000000000001 /* LineVisualizerView.swift in Sources */,
 				A1000035000000000000001 /* BarsVisualizerView.swift in Sources */,
+				A1000037000000000000001 /* YouTubePlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

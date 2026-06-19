@@ -87,7 +87,13 @@ class AudioManager: ObservableObject {
 
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.record, mode: .measurement, options: [])
+            // Use playAndRecord with defaultToSpeaker so YouTube audio plays
+            // through the speaker while the mic captures it for visualization
+            try audioSession.setCategory(
+                .playAndRecord,
+                mode: .default,
+                options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers]
+            )
             try audioSession.setActive(true)
 
             let engine = AVAudioEngine()

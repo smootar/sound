@@ -4,6 +4,9 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedAnimation: AnimationType = .sunGlow
     @State private var showAnimationPicker = false
+    @State private var showYouTubePicker = false
+    @State private var youtubeVideoID: String = ""
+    @State private var showYouTubePlayer = false
 
     var body: some View {
         ZStack {
@@ -31,10 +34,38 @@ struct ContentView: View {
             }
             .animation(.easeInOut(duration: 0.3), value: selectedAnimation)
 
-            VStack {
-                // Animation selector at top
+            VStack(spacing: 0) {
+                // Top toolbar with YouTube and animation buttons
                 HStack {
+                    // YouTube toggle button
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            if showYouTubePlayer {
+                                // Hide player
+                                showYouTubePlayer = false
+                                youtubeVideoID = ""
+                            } else {
+                                // Show URL picker
+                                showYouTubePicker = true
+                            }
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: showYouTubePlayer ? "xmark" : "play.rectangle.fill")
+                            Text(showYouTubePlayer ? "Close" : "YouTube")
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(showYouTubePlayer ? Color.red.opacity(0.7) : Color.white.opacity(0.25))
+                        .cornerRadius(20)
+                    }
+                    .accessibilityLabel(showYouTubePlayer ? "Close YouTube video" : "Open YouTube video")
+
                     Spacer()
+
+                    // Animation selector
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.25)) {
                             showAnimationPicker.toggle()
@@ -53,9 +84,19 @@ struct ContentView: View {
                     }
                     .accessibilityLabel("Choose animation type")
                     .accessibilityValue(selectedAnimation.rawValue)
-                    .padding(.trailing, 20)
                 }
+                .padding(.horizontal, 20)
                 .padding(.top, 10)
+
+                // YouTube player (when active)
+                if showYouTubePlayer && !youtubeVideoID.isEmpty {
+                    YouTubePlayerView(videoID: youtubeVideoID)
+                        .frame(height: 220)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 12)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
 
                 Spacer()
 
@@ -94,9 +135,15 @@ struct ContentView: View {
                 .padding(.bottom, 50)
             }
 
-            // Animation picker sheet with smooth transition
+            // Animation picker overlay
             if showAnimationPicker {
                 animationPickerOverlay
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+
+            // YouTube URL picker overlay
+            if showYouTubePicker {
+                youtubePickerOverlay
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
@@ -170,4 +217,164 @@ struct ContentView: View {
             }
         }
     }
+
+    private var youtubePickerOverlay: some View {
+        YouTubePickerOverlay(
+            isPresented: $showYouTubePicker,
+            onSelect: { videoID in
+                youtubeVideoID = videoID
+                showYouTubePlayer = true
+                // Automatically start mic recording so visualizations react
+                if !audioManager.isRecording {
+                    audioManager.toggleRecording()
+                }
+            }
+        )
+    }
+}
+
+// Separated to keep ContentView body type-checkable
+struct YouTubePickerOverlay: View {
+    @Binding var isPresented: Bool
+    let onSelect: (String) -> Void
+
+    @State private var urlInput: String = ""
+    @State private var errorMessage: String?
+
+    // Curated demo videos that work well for visualizations
+    private let demoVideos: [DemoVideo] = [
+        DemoVideo(title: "Beethoven Symphony No. 5", subtitle: "Classical · Public Domain", videoID: "fOk8Tm815lE"),
+        DemoVideo(title: "Pachelbel Canon in D", subtitle: "Classical · Public Domain", videoID: "JvNQLJ1_HQ0"),
+        DemoVideo(title: "Bach Toccata and Fugue", subtitle: "Classical · Public Domain", videoID: "ho9rZjlsyYY"),
+        DemoVideo(title: "1812 Overture (Tchaikovsky)", subtitle: "Classical · Public Domain", videoID: "rj4xDQg9p3M")
+    ]
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.6)
+                .ignoresSafeArea()
+                .onTapGesture { close() }
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                VStack(spacing: 0) {
+                    // Header
+                    HStack {
+                        Text("Watch a Video")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button(action: close) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.gray.opacity(0.35))
+
+                    // URL input
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Paste YouTube URL")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack {
+                            TextField("https://youtube.com/watch?v=...", text: $urlInput)
+                                .textFieldStyle(.plain)
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.black.opacity(0.4))
+                                .cornerRadius(8)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+
+                            Button(action: playFromInput) {
+                                Image(systemName: "play.fill")
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .background(Color.blue)
+                                    .cornerRadius(8)
+                            }
+                            .disabled(urlInput.isEmpty)
+                        }
+
+                        if let error = errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+
+                    // Demo videos list
+                    Text("Or pick a demo")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                        .padding(.bottom, 4)
+                        .background(Color.gray.opacity(0.2))
+
+                    ForEach(demoVideos) { video in
+                        Button(action: {
+                            onSelect(video.videoID)
+                            close()
+                        }) {
+                            HStack {
+                                Image(systemName: "music.note")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 24)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(video.title)
+                                        .foregroundColor(.white)
+                                        .font(.body)
+                                    Text(video.subtitle)
+                                        .foregroundColor(.white.opacity(0.5))
+                                        .font(.caption)
+                                }
+                                Spacer()
+                                Image(systemName: "play.circle")
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                        }
+
+                        Divider().background(Color.gray.opacity(0.3))
+                    }
+                }
+                .background(Color(white: 0.15))
+                .cornerRadius(16)
+                .padding()
+            }
+        }
+    }
+
+    private func playFromInput() {
+        if let id = YouTubeURLParser.extractVideoID(from: urlInput) {
+            errorMessage = nil
+            onSelect(id)
+            close()
+        } else {
+            errorMessage = "Couldn't read that link. Try a youtube.com/watch?v=... or youtu.be/... URL."
+        }
+    }
+
+    private func close() {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isPresented = false
+        }
+    }
+}
+
+struct DemoVideo: Identifiable {
+    var id: String { videoID }
+    let title: String
+    let subtitle: String
+    let videoID: String
 }
